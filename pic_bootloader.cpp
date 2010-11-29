@@ -495,6 +495,7 @@ void PicBootloader::open(const Parameters &params)
 		struct usb_dev_handle *devHandle;
 		bool found = false;
 
+		usleep(500000);
 		m_hDevice = INVALID_HANDLE_VALUE;
 
 		usb_init();
@@ -513,6 +514,13 @@ void PicBootloader::open(const Parameters &params)
 					devHandle = usb_open(dev);
 					if (devHandle == NULL)
 						break;
+
+					char buf[40];
+					int ret = usb_get_driver_np(devHandle, 0, buf, sizeof(buf));
+					if (ret == 0) {
+					    usb_detach_kernel_driver_np(devHandle, 0);
+					}
+
 					if (usb_claim_interface(devHandle, 0) < 0) {
 						usb_close(devHandle);
 						break;
